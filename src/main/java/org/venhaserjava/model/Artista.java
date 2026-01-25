@@ -1,18 +1,18 @@
 package org.venhaserjava.model;
 
-import io.quarkus.hibernate.reactive.panache.PanacheEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.FetchType;
+import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
+import jakarta.persistence.*;
+
 import java.util.List;
 import java.util.ArrayList;
 
 @Entity
 @Table(name = "artistas")
-public class Artista extends PanacheEntity {
+public class Artista extends PanacheEntityBase {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long id; // Corrigido de id;; para id;
 
     public String nome;
     public String tipo;
