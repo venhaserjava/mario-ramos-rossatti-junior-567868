@@ -44,3 +44,11 @@ nb-configuration.xml
 # TLS Certificates
 .certs/
 src/main/resources/application.properties
+publickey.pem
+rsaPrivateKey.pem
+src/main/resources/application.properties
+src/main/resources/application.properties
+
+# Arquivos Sensíveis
+src/main/resources/application.properties
+src/main/resources/*.pem
