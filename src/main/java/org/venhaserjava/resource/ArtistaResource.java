@@ -1,6 +1,7 @@
 package org.venhaserjava.resource;
 
 import io.smallrye.mutiny.Uni;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
@@ -21,6 +22,7 @@ public class ArtistaResource {
         return artistaService.listarTodos();
     }
 
+    @RolesAllowed("ADMIN")
     @POST
     public Uni<Response> criar(Artista artista) {
         return artistaService.salvar(artista)
