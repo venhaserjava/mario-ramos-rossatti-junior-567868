@@ -14,12 +14,14 @@ import java.util.List;
 @Consumes("application/json")
 public class ArtistaResource {
     // ... restante do código permanece igual
-    @Inject
+@Inject
     ArtistaService artistaService;
 
     @GET
-    public Uni<List<Artista>> listar() {
-        return artistaService.listarTodos();
+    public Uni<List<Artista>> listar(
+            @QueryParam("page") @DefaultValue("0") int page, 
+            @QueryParam("size") @DefaultValue("10") int size) {
+        return artistaService.listarPaginado(page, size);
     }
 
     @RolesAllowed("ADMIN")
@@ -28,4 +30,5 @@ public class ArtistaResource {
         return artistaService.salvar(artista)
                 .map(novoArtista -> Response.status(Response.Status.CREATED).entity(novoArtista).build());
     }
+    
 }
