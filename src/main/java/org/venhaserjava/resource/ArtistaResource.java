@@ -9,11 +9,11 @@ import org.venhaserjava.model.Artista;
 import org.venhaserjava.service.ArtistaService;
 import java.util.List;
 
-@Path("/artistas")
+@Path("/v1/artistas") // Adicionado o prefixo /v1 conforme edital
 @Produces("application/json")
 @Consumes("application/json")
 public class ArtistaResource {
-
+    // ... restante do código permanece igual
     @Inject
     ArtistaService artistaService;
 

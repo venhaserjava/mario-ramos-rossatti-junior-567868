@@ -11,12 +11,12 @@ import java.util.List;
 public class ArtistaService {
 
     public Uni<List<Artista>> listarTodos() {
-        return Artista.listAll();
+        // Adicionamos 'distinct' para evitar duplicatas causadas pelo join fetch
+        return Artista.list("select distinct a from Artista a left join fetch a.albuns");
     }
 
     @WithTransaction
     public Uni<Artista> salvar(Artista artista) {
-        // Aqui entrarão as regras de negócio no futuro
         return Artista.persist(artista).replaceWith(artista);
     }
 }
