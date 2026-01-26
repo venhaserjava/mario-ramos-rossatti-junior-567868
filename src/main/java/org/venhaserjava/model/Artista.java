@@ -15,7 +15,7 @@ public class Artista extends PanacheEntityBase {
     public String nome;
     public String tipo;
     
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
         name = "artista_album",
         joinColumns = @JoinColumn(name = "artista_id"),
