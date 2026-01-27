@@ -43,4 +43,15 @@ public class ArtistaResource {
                 .map(atualizado -> Response.ok(atualizado).build())
                 .onItem().ifNull().continueWith(Response.status(Response.Status.NOT_FOUND).build());
     }
+    
+    @DELETE
+    @Path("/{id}")
+    @RolesAllowed("ADMIN") // Requisito de segurança do edital
+    public Uni<Response> deletar(@PathParam("id") Long id) {
+        return artistaService.deletar(id)
+                .map(deletado -> deletado 
+                    ? Response.status(Response.Status.NO_CONTENT).build() 
+                    : Response.status(Response.Status.NOT_FOUND).build());
+    }
+
 }

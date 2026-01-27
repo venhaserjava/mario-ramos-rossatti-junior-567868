@@ -78,4 +78,16 @@ public class ArtistaService {
             // Notificação de atualização também via WebSocket
             .onItem().ifNotNull().invoke(a -> webSocket.broadcast("Artista atualizado: " + a.nome));
     }
+
+    @WithTransaction
+    public Uni<Boolean> deletar(Long id) {
+        return Artista.deleteById(id)
+            .onItem().invoke(deletado -> {
+                if (deletado) {
+                    webSocket.broadcast("Artista removido. ID: " + id);
+                }
+            });
+    }
+
+
 }
