@@ -61,7 +61,8 @@ public class ArtistaService {
                         return artista;
                     })
                     .flatMap(a -> session.persist(a).replaceWith(a));
-        });
+        }).onItem().invoke(a -> webSocket.broadcast("Novo artista cadastrado com álbuns: " + a.nome)); // Notificação N:N
+        
     }
 
     @SuppressWarnings({ "unchecked", "removal" })
