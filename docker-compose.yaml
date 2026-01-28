@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  db-2026:
+    image: postgres:15-alpine
+    container_name: postgres_splag_2026
+    environment:
+      POSTGRES_USER: quarkus
+      POSTGRES_PASSWORD: quarkus
+      POSTGRES_DB: 2026_seplag_artistas_db
+    ports:
+      - "5433:5432" # Porta externa 5433 evita conflito com o seu Postgres da 5432
+    networks:
+      - seplag-2026-net
+
+  minio-2026:
+    image: minio/minio
+    container_name: minio_seplag_2026
+    ports:
+      - "9005:9000" # API do MinIO na 9005 (evita conflito com Portainer na 9000)
+      - "9006:9001" # Console do MinIO na 9006
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    networks:
+      - seplag-2026-net
+
+networks:
+  seplag-2026-net:
+    driver: bridge
