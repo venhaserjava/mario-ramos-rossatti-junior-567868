@@ -15,7 +15,9 @@ public class Artista extends PanacheEntityBase {
     public String nome;
     public String tipo;
     
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    // Adicionamos MERGE para aceitar álbuns existentes 
+    // e REMOVE para ajudar na limpeza controlada
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
         name = "artista_album",
         joinColumns = @JoinColumn(name = "artista_id"),

@@ -52,3 +52,4 @@ src/main/resources/application.properties
 # Arquivos Sensíveis
 src/main/resources/application.properties
 src/main/resources/*.pem
+/src/main/java/org/venhaserjava/utils/TokenGenerator.java
