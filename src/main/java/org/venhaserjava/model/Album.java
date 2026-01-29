@@ -28,4 +28,9 @@ public class Album extends PanacheEntityBase {
     @ManyToMany(mappedBy = "albuns")
     @JsonIgnore
     public List<Artista> artistas;
+
+    @Column(name = "capa_url")
+    @JsonProperty("capaUrl")
+    public String capaUrl;
+
 }
