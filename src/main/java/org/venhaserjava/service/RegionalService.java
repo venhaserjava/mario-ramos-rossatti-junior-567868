@@ -5,6 +5,8 @@ import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+    // No topo do RegionalService.java
+import io.quarkus.scheduler.Scheduled;
 import org.jboss.logging.Logger; // Adicionado para rastreabilidade
 import org.venhaserjava.client.RegionalClient;
 import org.venhaserjava.dto.RegionalDTO;
@@ -63,5 +65,15 @@ public class RegionalService {
             LOG.infof("Processando %d operações de sincronização...", operacoes.size());
             return Uni.combine().all().unis(operacoes).discardItems();
         });
+    }
+
+    // ... dentro da classe
+    @Scheduled(every = "1h", identity = "sincronizacao-regionais")
+    void scheduledSync() {
+        LOG.info("Executando sincronização agendada...");
+        this.sincronizar().subscribe().with(
+            success -> LOG.info("Sincronização agendada concluída com sucesso."),
+            failure -> LOG.error("Falha na sincronização agendada: " + failure.getMessage())
+        );
     }
 }
