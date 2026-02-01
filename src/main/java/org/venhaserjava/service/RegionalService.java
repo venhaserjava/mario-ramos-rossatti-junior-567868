@@ -67,8 +67,8 @@ public class RegionalService {
         });
     }
 
-    // ... dentro da classe
     @Scheduled(every = "1h", identity = "sincronizacao-regionais")
+    @io.smallrye.common.annotation.NonBlocking // <--- Adicione isso
     void scheduledSync() {
         LOG.info("Executando sincronização agendada...");
         this.sincronizar().subscribe().with(
@@ -76,4 +76,14 @@ public class RegionalService {
             failure -> LOG.error("Falha na sincronização agendada: " + failure.getMessage())
         );
     }
+
+    // ... dentro da classe
+    // @Scheduled(every = "1h", identity = "sincronizacao-regionais")
+    // void scheduledSync() {
+    //     LOG.info("Executando sincronização agendada...");
+    //     this.sincronizar().subscribe().with(
+    //         success -> LOG.info("Sincronização agendada concluída com sucesso."),
+    //         failure -> LOG.error("Falha na sincronização agendada: " + failure.getMessage())
+    //     );
+    // }
 }
