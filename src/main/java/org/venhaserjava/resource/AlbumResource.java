@@ -44,10 +44,11 @@ public class AlbumResource {
     }
 
     @DELETE
-    @Path("/{albumId}/artista/{artistaId}")
+    @Path("/{id}")
     @RolesAllowed("ADMIN")
-    public Uni<Response> deletar(@PathParam("artistaId") Long artistaId, @PathParam("albumId") Long albumId) {
-        return albumService.deletarAlbumComSeguranca(artistaId, albumId)
+    public Uni<Response> deletar(@PathParam("id") Long id)  {
+        // id é do álbum a ser deletado
+        return albumService.deletarAlbum(id)
                 .replaceWith(Response.noContent().build());
     }
 }
