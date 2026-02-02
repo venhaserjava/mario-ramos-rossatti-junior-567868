@@ -69,6 +69,46 @@ public class ArtistaService {
         });
     }
 
+@WithTransaction
+public Uni<Boolean> deletar(Long id) {
+    return Artista.getSession().flatMap(session -> 
+        // 1. Buscamos os IDs dos álbuns que pertencem APENAS a este artista
+        session.createNativeQuery(
+            "SELECT album_id FROM artista_album WHERE artista_id = :id " +
+            "AND album_id NOT IN (SELECT album_id FROM artista_album WHERE artista_id <> :id)", Long.class)
+        .setParameter("id", id)
+        .getResultList()
+        .flatMap(idsOrfaos -> {
+            // 2. PASSO CRUCIAL: Se houver órfãos, limpamos a tabela de ligação para esses álbuns primeiro
+            // Isso remove o "vínculo pendurado" que causa o erro 23503
+            Uni<Integer> limparLigacoesOrfaos = idsOrfaos.isEmpty() ? 
+                Uni.createFrom().item(0) :
+                session.createNativeQuery("DELETE FROM artista_album WHERE album_id IN (:ids)")
+                    .setParameter("ids", idsOrfaos)
+                    .executeUpdate();
+
+            return limparLigacoesOrfaos.flatMap(v -> 
+                // 3. Deletamos o Artista (isso limpa o vínculo do artista na tabela de ligação)
+                Artista.deleteById(id).flatMap(deletado -> {
+                    if (deletado && !idsOrfaos.isEmpty()) {
+                        // 4. Agora os álbuns estão totalmente livres para serem apagados
+                        return session.createNativeQuery("DELETE FROM albuns WHERE id IN (:ids)")
+                                .setParameter("ids", idsOrfaos)
+                                .executeUpdate()
+                                .replaceWith(true);
+                    }
+                    return Uni.createFrom().item(deletado);
+                })
+            );
+        })
+    ).invoke(deletado -> {
+        if (deletado) {
+            webSocket.broadcast("ARTISTA_REMOVIDO: ID " + id);
+        }
+    });
+}
+
+    /*
     @WithTransaction
     public Uni<Boolean> deletar(Long id) {
         return Artista.getSession().flatMap(session -> 
@@ -95,6 +135,7 @@ public class ArtistaService {
             }
         });
     }
+    */    
 }
 
 
