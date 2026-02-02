@@ -39,7 +39,6 @@ public class ArtistaService {
     }
 
 
-
     @WithTransaction
     public Uni<Artista> salvar(Artista artista) {
         return artista.<Artista>persist()
@@ -69,7 +68,6 @@ public class ArtistaService {
             }
         });
     }
-
 
     @WithTransaction
     public Uni<Boolean> deletar(Long id) {
