@@ -24,6 +24,64 @@ public class RegionalService {
     @RestClient
     RegionalClient regionalClient;
 
+    // Adicione o Validator no topo da classe
+    @Inject
+    jakarta.validation.Validator validator;
+
+    @WithTransaction
+    public Uni<Void> sincronizar() {
+        LOG.info("Iniciando sincronização de regionais...");
+
+        return Uni.combine().all().unis(
+                regionalClient.buscarRegionaisExternas(),
+                Regional.<Regional>listAll()
+        ).asTuple().chain(tuple -> {
+            List<RegionalDTO> externas = tuple.getItem1();
+            List<Regional> locais = tuple.getItem2();
+
+            List<Uni<Void>> operacoes = new java.util.ArrayList<>();
+
+            // 1. Inativação (Lógica atual está segura)
+            locais.stream()
+                .filter(l -> l.ativo)
+                .filter(l -> externas.stream().noneMatch(e -> e.nome.equals(l.nome)))
+                .forEach(l -> {
+                    LOG.infof("Inativando regional: %s", l.nome);
+                    l.ativo = false;
+                    operacoes.add(l.persist().replaceWithVoid());
+                });
+
+            // 2. Inserção com Validação Manual (O CAPRICHO SÊNIOR)
+            externas.stream()
+                .filter(e -> locais.stream().noneMatch(l -> l.nome.equals(e.nome)))
+                .forEach(e -> {
+                    Regional nova = new Regional();
+                    nova.nome = e.nome;
+                    nova.ativo = true;
+
+                    // Validamos antes de tentar persistir
+                    var violations = validator.validate(nova);
+                    if (violations.isEmpty()) {
+                        LOG.infof("Inserindo nova regional: %s", e.nome);
+                        operacoes.add(nova.persist().replaceWithVoid());
+                    } else {
+                        String erros = violations.stream()
+                            .map(v -> v.getMessage())
+                            .collect(Collectors.joining(", "));
+                        LOG.errorf("Regional externa ignorada por dados inválidos (%s): %s", e.nome, erros);
+                    }
+                });
+
+            if (operacoes.isEmpty()) {
+                return Uni.createFrom().voidItem();
+            }
+
+            return Uni.combine().all().unis(operacoes).discardItems();
+        });
+    }
+
+
+/*    
     @WithTransaction
     public Uni<Void> sincronizar() {
         LOG.info("Iniciando sincronização de regionais...");
@@ -66,7 +124,7 @@ public class RegionalService {
             return Uni.combine().all().unis(operacoes).discardItems();
         });
     }
-
+*/
     @Scheduled(every = "1h", identity = "sincronizacao-regionais")
     @io.smallrye.common.annotation.NonBlocking // <--- Adicione isso
     void scheduledSync() {

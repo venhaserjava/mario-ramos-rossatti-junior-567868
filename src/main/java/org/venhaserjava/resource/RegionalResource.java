@@ -7,6 +7,9 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.venhaserjava.service.RegionalService;
 
 @Path("/v1/regionais")
@@ -16,6 +19,8 @@ public class RegionalResource {
     @Inject
     RegionalService regionalService;
 
+    @Operation(summary = "Sincronização de Regionais", description = "Retorna uma lista Regionais")
+    @APIResponse(responseCode = "200", description = "Sincronização concluída com sucesso")    
     @POST
     @Path("/sync")
     public Uni<Response> dispararSincronizacao() {
