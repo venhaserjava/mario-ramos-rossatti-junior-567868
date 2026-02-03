@@ -6,6 +6,10 @@ import io.vertx.core.Vertx;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.venhaserjava.dto.FileUploadDTO;
 import org.venhaserjava.model.Album;
 import org.venhaserjava.service.S3Service;
@@ -19,11 +23,18 @@ public class CapaResource {
     @Inject
     Vertx vertx; // Injetamos o Vertx para gerenciar o contexto
 
+
+    @Operation(summary = "Atualiza a capa do álbum", description = "Endpoint específico para atualizar apenas a URL da imagem da capa.")
+    @APIResponse(responseCode = "200", description = "Capa atualizada")   
     @POST
     @Path("/upload/{albumId}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Album> uploadEVincular(@PathParam("albumId") Long albumId, FileUploadDTO formData) {
+    public Uni<Album> uploadEVincular(
+        @Parameter(description = "Id do Album que receberá uma capa.", example = "1")
+        @PathParam("albumId") Long albumId, 
+        FileUploadDTO formData
+    ) {
         if (formData.file == null) {
             throw new BadRequestException("Arquivo não enviado.");
         }
