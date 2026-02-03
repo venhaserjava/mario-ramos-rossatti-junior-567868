@@ -4,6 +4,7 @@ import java.util.List;
 import io.smallrye.mutiny.Uni;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import org.venhaserjava.dto.AlbumResponseDTO;
@@ -29,7 +30,7 @@ public class AlbumResource {
     @POST
     @Path("/artista/{artistaId}")
     @RolesAllowed("ADMIN")
-    public Uni<Response> criar(@PathParam("artistaId") Long artistaId, Album album) {
+    public Uni<Response> criar(@PathParam("artistaId") Long artistaId, @Valid Album album) {
         return albumService.criarComArtista(artistaId, album)
                 .map(novoAlbum -> Response.status(Response.Status.CREATED).entity(novoAlbum).build());
     }
@@ -37,7 +38,7 @@ public class AlbumResource {
     @PUT
     @Path("/{id}")
     @RolesAllowed("ADMIN")
-    public Uni<Response> atualizar(@PathParam("id") Long id, Album album) {
+    public Uni<Response> atualizar(@PathParam("id") Long id,@Valid Album album) {
         return albumService.atualizar(id, album)
                 .map(atualizado -> Response.ok(atualizado).build())
                 .onItem().ifNull().continueWith(Response.status(Response.Status.NOT_FOUND).build());

@@ -2,6 +2,8 @@ package org.venhaserjava.model;
 
 import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
@@ -12,7 +14,11 @@ public class Artista extends PanacheEntityBase {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
 
+    @NotBlank(message = "O nome do artista é obrigatório")
+    @Size(min = 2, max = 100, message = "O nome deve ter entre 2 e 100 caracteres")
     public String nome;
+
+    @NotBlank(message = "O tipo (Banda/Solo) é obrigatório")
     public String tipo;
     
     // Adicionamos MERGE para aceitar álbuns existentes cadstrados por outros artistas

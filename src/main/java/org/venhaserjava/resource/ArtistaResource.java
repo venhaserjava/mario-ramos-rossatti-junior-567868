@@ -4,6 +4,7 @@ package org.venhaserjava.resource;
 import io.smallrye.mutiny.Uni;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import org.venhaserjava.model.Artista;
@@ -30,7 +31,7 @@ public class ArtistaResource {
 
     @RolesAllowed("ADMIN")
     @POST
-    public Uni<Response> criar(Artista artista) {
+    public Uni<Response> criar(@Valid Artista artista) {
         return artistaService.salvar(artista)
                 .map(novoArtista -> Response.status(Response.Status.CREATED).entity(novoArtista).build());
     }
@@ -38,7 +39,7 @@ public class ArtistaResource {
     @RolesAllowed("ADMIN")
     @PUT
     @Path("/{id}")
-    public Uni<Response> atualizar(@PathParam("id") Long id, Artista artista) {
+    public Uni<Response> atualizar(@PathParam("id") Long id,@Valid Artista artista) {
         return artistaService.atualizar(id, artista)
                 .map(atualizado -> Response.ok(atualizado).build())
                 .onItem().ifNull().continueWith(Response.status(Response.Status.NOT_FOUND).build());

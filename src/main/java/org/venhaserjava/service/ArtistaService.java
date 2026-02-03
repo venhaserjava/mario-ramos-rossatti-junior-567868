@@ -39,11 +39,30 @@ public class ArtistaService {
     }
 
 
+    // @WithTransaction
+    // public Uni<Artista> salvar(Artista artista) {
+    //     return artista.<Artista>persist()
+    //             .invoke(novo -> webSocket.broadcast("NOVO_ARTISTA: " + novo.nome + " (ID: " + novo.id + ")"));
+    // }
+    
     @WithTransaction
     public Uni<Artista> salvar(Artista artista) {
-        return artista.<Artista>persist()
-                .invoke(novo -> webSocket.broadcast("NOVO_ARTISTA: " + novo.nome + " (ID: " + novo.id + ")"));
+        return Artista.getSession().flatMap(session -> {
+            if (artista.id == null) {
+                // Se o artista é novo, usamos merge para que o Hibernate 
+                // resolva as entidades 'detached' (álbuns com ID) na lista
+                return session.merge(artista);
+            } else {
+                return session.merge(artista);
+            }
+        }).invoke(novo -> {
+            if (novo != null) {
+                webSocket.broadcast("ARTISTA_CRIADO: " + novo.nome);
+            }
+        });
     }
+
+
 
     @WithTransaction
     public Uni<Artista> atualizar(Long id, Artista artista) {
