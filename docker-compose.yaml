@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db-2026:
     image: postgres:15-alpine
