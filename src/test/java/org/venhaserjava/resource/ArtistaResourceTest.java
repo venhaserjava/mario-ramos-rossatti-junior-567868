@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.venhaserjava.model.Artista;
 
 import static io.restassured.RestAssured.given;
-//import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 
 @QuarkusTest

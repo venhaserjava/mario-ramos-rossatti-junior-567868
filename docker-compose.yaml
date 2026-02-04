@@ -3,13 +3,18 @@ version: '3.8'
 services:
   db-2026:
     image: postgres:15-alpine
-    container_name: postgres_splag_2026
+    container_name: postgres_seplag_2026
     environment:
       POSTGRES_USER: quarkus
       POSTGRES_PASSWORD: quarkus
       POSTGRES_DB: 2026_seplag_artistas_db
     ports:
-      - "5433:5432" # Porta externa 5433 evita conflito com o seu Postgres da 5432
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quarkus -d 2026_seplag_artistas_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - seplag-2026-net
 
@@ -17,12 +22,35 @@ services:
     image: minio/minio
     container_name: minio_seplag_2026
     ports:
-      - "9005:9000" # API do MinIO na 9005 (evita conflito com Portainer na 9000)
-      - "9006:9001" # Console do MinIO na 9006
+      - "9005:9000"
+      - "9006:9001"
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - seplag-2026-net
+
+  api-2026:
+    build: .
+    container_name: api_seplag_2026
+    depends_on:
+      db-2026:
+        condition: service_healthy
+      minio-2026:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      # Sobrescrevemos as propriedades para os nomes dos serviços dentro da rede Docker
+      QUARKUS_DATASOURCE_REACTIVE_URL: postgresql://db-2026:5432/2026_seplag_artistas_db
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://db-2026:5432/2026_seplag_artistas_db
+      QUARKUS_S3_ENDPOINT_OVERRIDE: http://minio-2026:9000
     networks:
       - seplag-2026-net
 
