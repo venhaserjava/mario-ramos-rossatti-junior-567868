@@ -35,7 +35,7 @@ public class Album extends PanacheEntityBase {
     @JsonIgnore
     public List<Artista> artistas;
 
-    @Column(name = "capa_url")
+    @Column(name = "capa_url",length = 1000)
     @JsonProperty("capaUrl")
     public String capaUrl;
 
