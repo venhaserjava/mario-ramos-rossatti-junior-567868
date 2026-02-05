@@ -14,7 +14,11 @@ import org.venhaserjava.model.Regional;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+// 
+// Serviço responsável pela inteligência de sincronização de dados geográficos/administrativos.
+// Implementa um motor de reconciliação que compara dados locais com uma API externa,
+// realizando operações em lote de forma reativa e transacional.
+// 
 @ApplicationScoped
 public class RegionalService {
 
@@ -27,6 +31,14 @@ public class RegionalService {
     // Adicione o Validator no topo da classe
     @Inject
     jakarta.validation.Validator validator;
+
+// 
+//      Executa a reconciliação entre o banco local e a API externa da SEPLAG.
+//      A lógica divide-se em:
+//      1. Inativar regionais locais que não constam na carga externa.
+//      2. Criar novas regionais para registros inéditos.
+//      @return Uni<Void> sinalizando o término do pipeline reativo.
+//      
 
     @WithTransaction
     public Uni<Void> sincronizar() {
@@ -75,8 +87,8 @@ public class RegionalService {
             if (operacoes.isEmpty()) {
                 return Uni.createFrom().voidItem();
             }
-
-            return Uni.combine().all().unis(operacoes).discardItems();
+            // Pipeline de combinação e transformação de listas (Omitido para brevidade no Javadoc)    
+            return Uni.combine().all().unis(operacoes).discardItems(); 
         });
     }
 

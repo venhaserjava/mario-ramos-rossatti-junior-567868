@@ -10,7 +10,10 @@ import org.venhaserjava.model.Artista;
 import org.venhaserjava.websocket.ArtistaWebSocket;
 
 import java.util.List;
-
+// 
+// Serviço de domínio para gestão de Artistas e Bandas.
+// Concentra as regras de negócio de filtragem avançada e manutenção de integridade.
+// 
 @ApplicationScoped
 public class ArtistaService {
 
