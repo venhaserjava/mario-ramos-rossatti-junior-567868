@@ -16,18 +16,20 @@ API Especialista para gestão de acervo musical, focada em segurança e performa
 ## 📖 Documentação Detalhada
 Para entender as decisões de projeto e o guia completo de testes, acesse:
 - [Arquitetura e Decisões Técnicas](./docs/arquitetura.md)
-- [Guia de Endpoints e Testes](docs/api-guia.md)
+- [Guia de Endpoints e Testes](./docs/api-guia.md)
 
 
 ## 🛠️ Stack Tecnológica
 - **Java 21** & **Quarkus 3.x** (Framework Reativo)
 - **Hibernate Reactive** (Persistência Não-bloqueante)
-- **PostgreSQL 16** (Banco de Dados)
+- **PostgreSQL 15.12** (Banco de Dados)
 - **MinIO / AWS S3** (Storage de Capas)
 - **Redis** (Cache de Regionais - *se aplicável*)
 - **SmallRye JWT** (Segurança RBAC)
 
- "Nota:  ` As chaves RSA` (**.pem**) foram incluídas no repositório exclusivamente para facilitar a homologação e o teste imediato da `segurança JWT` pelo avaliador." Isso mostra que você sabe que é um risco, mas tomou uma decisão consciente para ajudar quem está corrigindo sua prova.
+ #### Nota:  ` As chaves RSA` (**.pem**) foram incluídas no repositório exclusivamente para facilitar a homologação e o teste imediato da `segurança JWT` pelo avaliador. I
 
 ---
-**Candidato:** `Mario Ramos Rossatti Junior` - 567.868.401-91 Inscrição : **16373**
+**Candidato:** `Mario Ramos Rossatti Junior` 
+**Inscrição** : `16373`
+
