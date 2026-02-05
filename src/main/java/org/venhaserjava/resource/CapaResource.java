@@ -6,14 +6,18 @@ import io.vertx.core.Vertx;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.venhaserjava.dto.FileUploadDTO;
 import org.venhaserjava.model.Album;
 import org.venhaserjava.service.S3Service;
+import org.venhaserjava.websocket.ArtistaWebSocket;
 
+/**
+ * Resource responsável pela gestão de mídias e capas dos álbuns.
+ * Gerencia o ciclo de vida de arquivos binários integrados ao storage S3.
+ */
 @Path("/capas")
 public class CapaResource {
 
@@ -21,17 +25,27 @@ public class CapaResource {
     S3Service s3Service;
 
     @Inject
-    Vertx vertx; // Injetamos o Vertx para gerenciar o contexto
+    ArtistaWebSocket webSocket; // Injeção necessária para o broadcast
 
+    @Inject
+    Vertx vertx;
 
-    @Operation(summary = "Atualiza a capa do álbum", description = "Endpoint específico para atualizar apenas a URL da imagem da capa.")
-    @APIResponse(responseCode = "200", description = "Capa atualizada")   
+    /**
+     * Realiza o upload da imagem para o S3 e vincula a URL gerada ao álbum correspondente.
+     * Ao final do processo, dispara uma notificação via WebSocket para os clientes conectados.
+     *
+     * @param albumId ID do álbum a ser atualizado.
+     * @param formData DTO contendo o arquivo binário e metadados.
+     * @return Uni contendo o álbum atualizado com a nova URL da capa.
+     */
+    @Operation(summary = "Atualiza a capa do álbum", description = "Faz upload para S3 e notifica via WebSocket.")
+    @APIResponse(responseCode = "200", description = "Capa atualizada e notificação enviada")   
     @POST
     @Path("/upload/{albumId}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Album> uploadEVincular(
-        @Parameter(description = "Id do Album que receberá uma capa.", example = "1")
+        @Parameter(description = "Id do Album que receberá uma capa.")
         @PathParam("albumId") Long albumId, 
         FileUploadDTO formData
     ) {
@@ -39,12 +53,10 @@ public class CapaResource {
             throw new BadRequestException("Arquivo não enviado.");
         }
 
-        // 1. Capturamos o contexto do Vert.x da thread atual (Event Loop)
         var context = vertx.getOrCreateContext();
 
         return s3Service.uploadCapa(formData.file.filePath(), formData.file.contentType())
             .onItem().transformToUni(url -> 
-                // 2. Forçamos a execução de volta no contexto capturado
                 Uni.createFrom().<Album>emitter(emitter -> 
                     context.runOnContext(v -> 
                         Panache.withTransaction(() -> 
@@ -54,173 +66,16 @@ public class CapaResource {
                                     return album.persist().replaceWith(album);
                                 })
                                 .onItem().ifNull().failWith(new NotFoundException("Álbum não encontrado"))
-                        ).subscribe().with(emitter::complete, emitter::fail)
+                        ).subscribe().with(
+                            album -> {
+                                // [SÊNIOR] Notificamos o WebSocket após o sucesso da transação
+                                webSocket.broadcast("Capa atualizada para o álbum: " + album.titulo);
+                                emitter.complete(album);
+                            }, 
+                            emitter::fail
+                        )
                     )
                 )
             );
     }
 }
-
-/*
-package org.venhaserjava.resource;
-
-import io.quarkus.hibernate.reactive.panache.Panache;
-import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.infrastructure.Infrastructure;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import org.venhaserjava.dto.FileUploadDTO;
-import org.venhaserjava.model.Album;
-import org.venhaserjava.service.S3Service;
-
-@Path("/capas")
-public class CapaResource {
-
-    @Inject
-    S3Service s3Service;
-
-    @POST
-    @Path("/upload/{albumId}")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Album> uploadEVincular(@PathParam("albumId") Long albumId, FileUploadDTO formData) {
-        if (formData.file == null) {
-            throw new BadRequestException("Arquivo não enviado.");
-        }
-
-        return s3Service.uploadCapa(formData.file.filePath(), formData.file.contentType())
-            // FORÇAMOS a volta para o contexto do Quarkus/Vert.x aqui
-            .emitOn(Infrastructure.getDefaultExecutor()) 
-            .onItem().transformToUni(url -> 
-                Panache.withTransaction(() -> 
-                    Album.<Album>findById(albumId)
-                        .onItem().ifNotNull().transformToUni(album -> {
-                            album.capaUrl = url;
-                            // Usamos persist para garantir a gravação
-                            return album.persist().replaceWith(album);
-                        })
-                        .onItem().ifNull().failWith(new NotFoundException("Álbum não encontrado com ID: " + albumId))
-                )
-            );
-    }
-}
-*/
-
-
-/*
-package org.venhaserjava.resource;
-
-import io.quarkus.hibernate.reactive.panache.Panache;
-import io.smallrye.mutiny.Uni;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import org.venhaserjava.dto.FileUploadDTO;
-import org.venhaserjava.model.Album;
-import org.venhaserjava.service.S3Service;
-
-@Path("/capas")
-public class CapaResource {
-
-    @Inject
-    S3Service s3Service;
-
-    @POST
-    @Path("/upload/{albumId}")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Album> uploadEVincular(@PathParam("albumId") Long albumId, FileUploadDTO formData) {
-        if (formData.file == null) {
-            throw new BadRequestException("Arquivo não enviado.");
-        }
-
-        // 1. Primeiro fazemos o upload (Thread AWS)
-        return s3Service.uploadCapa(formData.file.filePath(), formData.file.contentType())
-            .onItem().transformToUni(url -> 
-                // 2. Usamos o Panache.withSession para reestabelecer o contexto do Hibernate
-                Panache.withSession(() -> 
-                    Album.<Album>findById(albumId)
-                        .onItem().ifNotNull().transformToUni(album -> {
-                            album.capaUrl = url;
-                            return album.persist().replaceWith(album);
-                        })
-                        .onItem().ifNull().failWith(new NotFoundException("Álbum não encontrado com ID: " + albumId))
-                )
-            );
-    }
-}
-*/
-
-
-/*
-package org.venhaserjava.resource;
-
-import io.smallrye.mutiny.Uni;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import org.venhaserjava.dto.FileUploadDTO;
-import org.venhaserjava.model.Album;
-import org.venhaserjava.service.S3Service;
-
-@Path("/capas")
-public class CapaResource {
-
-    @Inject
-    S3Service s3Service;
-
-    @POST
-    @Path("/upload/{albumId}")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Album> uploadEVincular(@PathParam("albumId") Long albumId, FileUploadDTO formData) {
-        if (formData.file == null) {
-            throw new BadRequestException("Arquivo não enviado.");
-        }
-
-        return s3Service.uploadCapa(formData.file.filePath(), formData.file.contentType())
-                .onItem().transformToUni(url ->
-                        // Adicionamos a tipagem explícita <Album> no findById
-                        Album.<Album>findById(albumId)
-                                .onItem().ifNotNull().transformToUni(album -> {
-                                    album.capaUrl = url;
-                                    // O persist() retorna Uni<Void> ou Uni<Entity>,
-                                    // garantimos que retorne o album atualizado
-                                    return album.persist().replaceWith(album);
-                                })
-                                .onItem().ifNull().failWith(new NotFoundException("Álbum não encontrado com ID: " + albumId))
-                );
-    }
-}
-*/    
-/*
-package org.venhaserjava.resource;
-
-import io.smallrye.mutiny.Uni;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import org.venhaserjava.dto.FileUploadDTO;
-import org.venhaserjava.service.S3Service;
-
-@Path("/capas")
-public class CapaResource {
-
-    @Inject
-    S3Service s3Service;
-
-    @POST
-    @Path("/upload")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.TEXT_PLAIN)
-    public Uni<String> upload(FileUploadDTO formData) {
-        if (formData.file == null) {
-            throw new BadRequestException("Arquivo não enviado.");
-        }
-        
-        // Chamamos o seu serviço passando o Path temporário e o tipo do arquivo
-        return s3Service.uploadCapa(formData.file.filePath(), formData.file.contentType());
-    }
-}
-*/
