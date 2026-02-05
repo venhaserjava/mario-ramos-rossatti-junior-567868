@@ -18,5 +18,14 @@ Para entender as decisões de projeto e o guia completo de testes, acesse:
 - [Arquitetura e Decisões Técnicas](./docs/arquitetura.md)
 - [Guia de Endpoints e Testes](docs/api-guia.md)
 
+
+## 🛠️ Stack Tecnológica
+- **Java 21** & **Quarkus 3.x** (Framework Reativo)
+- **Hibernate Reactive** (Persistência Não-bloqueante)
+- **PostgreSQL 16** (Banco de Dados)
+- **MinIO / AWS S3** (Storage de Capas)
+- **Redis** (Cache de Regionais - *se aplicável*)
+- **SmallRye JWT** (Segurança RBAC)
+
 ---
 **Candidato:** Mario Ramos Rossatti Junior
