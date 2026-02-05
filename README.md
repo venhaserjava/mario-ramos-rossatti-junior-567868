@@ -27,5 +27,7 @@ Para entender as decisões de projeto e o guia completo de testes, acesse:
 - **Redis** (Cache de Regionais - *se aplicável*)
 - **SmallRye JWT** (Segurança RBAC)
 
+ "Nota:  ` As chaves RSA` (**.pem**) foram incluídas no repositório exclusivamente para facilitar a homologação e o teste imediato da `segurança JWT` pelo avaliador." Isso mostra que você sabe que é um risco, mas tomou uma decisão consciente para ajudar quem está corrigindo sua prova.
+
 ---
-**Candidato:** Mario Ramos Rossatti Junior
+**Candidato:** `Mario Ramos Rossatti Junior` - 567.868.401-91 Inscrição : **16373**

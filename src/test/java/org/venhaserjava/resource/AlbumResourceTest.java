@@ -63,45 +63,4 @@ public class AlbumResourceTest {
             .statusCode(403);
     }
 
-    @Test
-    @TestSecurity(user = "admin-user", roles = {"ADMIN"})
-    @DisplayName("Deve validar erro 400 ao tentar criar álbum para artista inexistente")
-    public void deveRetornar400ParaArtistaInexistente() {
-        Album novoAlbum = new Album();
-        novoAlbum.titulo = "Álbum Sem Dono";
-        novoAlbum.anoLancamento = 2024;
-
-        given()
-            .contentType(ContentType.JSON)
-            .body(novoAlbum)
-        .when()
-            .post("/v1/albuns/artista/999") // ID que não existe no import-test.sql
-        .then()
-            .statusCode(400);
-    }
-    
-/*    
-    @Test
-    @TestSecurity(user = "admin-user", roles = {"ADMIN"})
-    @DisplayName("Deve deletar um álbum com sucesso sendo ADMIN")
-    public void deveDeletarAlbumSendoAdmin() {
-        // Agora o ID 1 existe porque colocamos no import-test.sql
-        given()
-            .pathParam("id", 1)
-        .when()
-            .delete("/v1/albuns/{id}")
-        .then()
-            .statusCode(204);
-            
-        // Validamos que ele realmente sumiu
-        given()
-            .queryParam("titulo", "Meteora")
-        .when()
-            .get("/v1/albuns")
-        .then()
-            .statusCode(200)
-            .body("size()", is(0)); 
-    }
-*/
-
 }

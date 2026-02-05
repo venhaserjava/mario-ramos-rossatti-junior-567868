@@ -1,4 +1,4 @@
-#Maven
+# --- Build & Dependency Management ---
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -6,50 +6,35 @@ pom.xml.versionsBackup
 release.properties
 .flattened-pom.xml
 
-# Eclipse
+# --- IDEs & Editor Configuration ---
+.idea/
+*.iml
+*.ipr
+*.iws
 .project
 .classpath
 .settings/
-bin/
-
-# IntelliJ
-.idea
-*.ipr
-*.iml
-*.iws
-
-# NetBeans
-nb-configuration.xml
-
-# Visual Studio Code
-.vscode
+.vscode/
 .factorypath
+.history/
+.nb-configuration.xml
 
-# OSX
+# --- Quarkus & Runtime Environment ---
+.quarkus/
+bin/
 .DS_Store
-
-# Vim
 *.swp
-*.swo
+*.log
+logs/
 
-# patch
-*.orig
-*.rej
-
-# Local environment
+# --- Local Secrets (If any) ---
 .env
+.env.local
 
-# Plugin directory
-/.quarkus/cli/plugins/
-# TLS Certificates
-.certs/
-src/main/resources/application.properties
-publickey.pem
-rsaPrivateKey.pem
-src/main/resources/application.properties
-src/main/resources/application.properties
+# --- SEPLAG ASSESSMENT RULES ---
+# Mantemos os arquivos abaixo no Git para garantir a portabilidade do teste:
+!src/main/resources/application.properties
+!src/main/resources/*.pem
 
-# Arquivos Sensíveis
-src/main/resources/application.properties
-src/main/resources/*.pem
+# Ignoramos utilitários de geração de chaves para manter o foco na API
 /src/main/java/org/venhaserjava/utils/TokenGenerator.java
