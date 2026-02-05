@@ -1,3 +1,6 @@
+
+
+
 package org.venhaserjava.resource;
 
 import java.util.List;
@@ -17,6 +20,11 @@ import org.venhaserjava.dto.AlbumResponseDTO;
 import org.venhaserjava.model.Album;
 import org.venhaserjava.service.AlbumService;
 
+
+// 
+// Endpoint para operações relacionadas aos álbuns musicais.
+// Utiliza DTOs na saída para garantir a integridade do contrato e evitar recursão infinita no JSON.
+// 
 @Path("/v1/albuns")
 @Produces("application/json")
 @Consumes("application/json")

@@ -19,6 +19,10 @@ public class RegionalResource {
     @Inject
     RegionalService regionalService;
 
+    // 
+    // Gerencia as operações relacionadas às Unidades Regionais.
+    // Permite o acionamento manual do processo de sincronização de dados externos.
+    // 
     @Operation(summary = "Sincronização de Regionais", description = "Retorna uma lista Regionais")
     @APIResponse(responseCode = "200", description = "Sincronização concluída com sucesso")    
     @POST

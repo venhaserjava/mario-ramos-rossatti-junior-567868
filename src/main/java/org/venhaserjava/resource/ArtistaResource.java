@@ -15,6 +15,12 @@ import org.venhaserjava.model.Artista;
 import org.venhaserjava.service.ArtistaService;
 import java.util.List;
 
+
+// 
+//   Controller REST para gestão de Artistas e Bandas.
+//   Implementa operações reativas e controle de acesso baseado em funções (RBAC).
+//  
+
 @Path("/v1/artistas")
 @Produces("application/json")
 @Consumes("application/json")
@@ -23,6 +29,13 @@ public class ArtistaResource {
     @Inject
     ArtistaService artistaService;
 
+
+    // 
+    //   Lista artistas com suporte a filtros e paginação.
+    //   @param page Índice da página.
+    //   @param size Quantidade de registros por página.
+    //   @return Uni contendo a lista de artistas filtrados.
+    //  
     @Operation(summary = "Lista todos os artistas", description = "Retorna uma lista paginada de artistas com filtros de nome e tipo")
     @APIResponse(responseCode = "200", description = "Lista retornada com sucesso")
     @GET
@@ -39,6 +52,11 @@ public class ArtistaResource {
         return artistaService.listarComFiltros(page, size, nome, tipo, order);
     }
 
+
+    // 
+    //  Remove um artista do sistema.
+    //  Requisito de segurança: Apenas usuários com a role ADMIN podem deletar registros.
+    // 
     @Operation(summary = "Cria um novo artista", description = "Requer privilégios de ADMIN. Permite associar álbuns existentes ou novos.")
     @APIResponse(responseCode = "201", description = "Artista criado com sucesso")
     @APIResponse(responseCode = "400", description = "Dados de entrada inválidos")
