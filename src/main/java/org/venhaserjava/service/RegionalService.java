@@ -92,51 +92,6 @@ public class RegionalService {
         });
     }
 
-
-/*    
-    @WithTransaction
-    public Uni<Void> sincronizar() {
-        LOG.info("Iniciando sincronização de regionais...");
-
-        return Uni.combine().all().unis(
-                regionalClient.buscarRegionaisExternas(),
-                Regional.<Regional>listAll()
-        ).asTuple().chain(tuple -> {
-            List<RegionalDTO> externas = tuple.getItem1();
-            List<Regional> locais = tuple.getItem2();
-
-            // 1. Identificar quem deve ser inativado (está no banco mas não na API externa)
-            List<Uni<Void>> operacoes = locais.stream()
-                .filter(l -> l.ativo)
-                .filter(l -> externas.stream().noneMatch(e -> e.nome.equals(l.nome)))
-                .map(l -> {
-                    LOG.infof("Inativando regional: %s", l.nome);
-                    l.ativo = false;
-                    return l.persist().replaceWithVoid();
-                }).collect(Collectors.toCollection(java.util.ArrayList::new));
-
-            // 2. Identificar quem deve ser inserido (está na API externa mas não no banco)
-            externas.stream()
-                .filter(e -> locais.stream().noneMatch(l -> l.nome.equals(e.nome)))
-                .forEach(e -> {
-                    LOG.infof("Inserindo nova regional: %s", e.nome);
-                    Regional nova = new Regional();
-                    nova.nome = e.nome;
-                    nova.ativo = true;
-                    operacoes.add(nova.persist().replaceWithVoid());
-                });
-
-            // CORREÇÃO: Se não houver nada para processar, retornamos sucesso sem erro
-            if (operacoes.isEmpty()) {
-                LOG.info("Sincronização finalizada: Nenhuma alteração necessária.");
-                return Uni.createFrom().voidItem();
-            }
-
-            LOG.infof("Processando %d operações de sincronização...", operacoes.size());
-            return Uni.combine().all().unis(operacoes).discardItems();
-        });
-    }
-*/
     @Scheduled(every = "1h", identity = "sincronizacao-regionais")
     @io.smallrye.common.annotation.NonBlocking // <--- Adicione isso
     void scheduledSync() {
@@ -147,13 +102,5 @@ public class RegionalService {
         );
     }
 
-    // ... dentro da classe
-    // @Scheduled(every = "1h", identity = "sincronizacao-regionais")
-    // void scheduledSync() {
-    //     LOG.info("Executando sincronização agendada...");
-    //     this.sincronizar().subscribe().with(
-    //         success -> LOG.info("Sincronização agendada concluída com sucesso."),
-    //         failure -> LOG.error("Falha na sincronização agendada: " + failure.getMessage())
-    //     );
-    // }
+
 }

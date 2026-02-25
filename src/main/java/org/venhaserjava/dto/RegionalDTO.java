@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotBlank;
  * Ele mapeia os dados recebidos da API externa para a estrutura interna do sistema,
  * garantindo que a integridade dos dados seja validada antes da persistência.
  * </p>
- * * @author Mario Ramos Rossatti Junior
+ * @author Mario Ramos Rossatti Junior
  * @see org.venhaserjava.model.Regional
  */
 public class RegionalDTO {
@@ -34,7 +34,7 @@ public class RegionalDTO {
 
     /**
      * Construtor de conveniência para criação rápida de DTOs em testes.
-     * * @param nome Nome da regional a ser instanciada.
+     * @param nome Nome da regional a ser instanciada.
      */
     public RegionalDTO(String nome) {
         this.nome = nome;

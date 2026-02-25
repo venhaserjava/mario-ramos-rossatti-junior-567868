@@ -26,6 +26,7 @@ public class Regional extends PanacheEntityBase {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
 
+    
     /**
      * Nome descritivo da Regional.
      * Possui restrição de tamanho de 200 caracteres conforme o schema do banco de dados.

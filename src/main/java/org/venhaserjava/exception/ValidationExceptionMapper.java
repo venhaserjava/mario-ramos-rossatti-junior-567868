@@ -18,12 +18,12 @@ import jakarta.validation.ConstraintViolationException;
 //  
 @Provider
 public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
-
-    //
-    //  Transforma as violações de restrição em uma lista de strings para o payload de erro.
-    //  @param exception Conjunto de violações detectadas pelo Validator.
-    //  @return Response com status 400 e detalhes das validações que falharam.
-    // 
+ 
+    /* *
+    **  Transforma as violações de restrição em uma lista de strings para o payload de erro.
+    **  @param exception Conjunto de violações detectadas pelo Validator.
+    **  @return Response com status 400 e detalhes das validações que falharam.
+    */ 
     @Override
     public Response toResponse(ConstraintViolationException exception) {
         List<String> erros = exception.getConstraintViolations().stream()

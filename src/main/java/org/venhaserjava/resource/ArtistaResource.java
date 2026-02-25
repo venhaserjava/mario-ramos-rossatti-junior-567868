@@ -49,13 +49,12 @@ public class ArtistaResource {
             @Parameter(description = "Tipo do Artista", example = "Banda")
             @QueryParam("tipo") String tipo,
             @QueryParam("order") @DefaultValue("asc") String order) {
-        return artistaService.listarComFiltros(page, size, nome, tipo, order);
+        return artistaService.listWithFilters(page, size, nome, tipo, order);
     }
 
-
     // 
-    //  Remove um artista do sistema.
-    //  Requisito de segurança: Apenas usuários com a role ADMIN podem deletar registros.
+    //  CRIA um artista do sistema.
+    //  Requisito de segurança: Apenas usuários com a role ADMIN podem criar registros.
     // 
     @Operation(summary = "Cria um novo artista", description = "Requer privilégios de ADMIN. Permite associar álbuns existentes ou novos.")
     @APIResponse(responseCode = "201", description = "Artista criado com sucesso")
@@ -63,7 +62,7 @@ public class ArtistaResource {
     @RolesAllowed("ADMIN")
     @POST
     public Uni<Response> criar(@Valid Artista artista) {
-        return artistaService.salvar(artista)
+        return artistaService.create(artista)
                 .map(novoArtista -> Response.status(Response.Status.CREATED).entity(novoArtista).build());
     }
 
@@ -78,10 +77,11 @@ public class ArtistaResource {
         @PathParam("id") Long id,
         @Valid Artista artista
     ) {
-        return artistaService.atualizar(id, artista)
+        return artistaService.update(id, artista)
                 .map(atualizado -> Response.ok(atualizado).build())
                 .onItem().ifNull().continueWith(Response.status(Response.Status.NOT_FOUND).build());
     }
+
     @Operation(summary = "Remove um artista", description = "Requer privilégios de ADMIN. Remove o artista e seus álbuns exclusivos (órfãos).")
     @APIResponse(responseCode = "204", description = "Artista removido com sucesso")
     @DELETE
@@ -91,7 +91,7 @@ public class ArtistaResource {
         @Parameter(description = "Id do Artista que será excluido.", example = "1")
         @PathParam("id") Long id
     ) {
-        return artistaService.deletar(id)
+        return artistaService.delete(id)
                 .map(deletado -> deletado 
                     ? Response.status(Response.Status.NO_CONTENT).build() 
                     : Response.status(Response.Status.NOT_FOUND).build());

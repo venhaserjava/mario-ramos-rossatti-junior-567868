@@ -20,7 +20,7 @@ public class ArtistaService {
     @Inject
     ArtistaWebSocket webSocket;
 
-    public Uni<List<Artista>> listarComFiltros(int page, int size, String nome, String tipo, String order) {
+    public Uni<List<Artista>> listWithFilters(int page, int size, String nome, String tipo, String order) {
         StringBuilder query = new StringBuilder("select distinct a from Artista a left join fetch a.albuns where 1=1");
         Parameters params = new Parameters();
 
@@ -49,7 +49,7 @@ public class ArtistaService {
     // }
     
     @WithTransaction
-    public Uni<Artista> salvar(Artista artista) {
+    public Uni<Artista> create(Artista artista) {
         return Artista.getSession().flatMap(session -> {
             if (artista.id == null) {
                 // Se o artista é novo, usamos merge para que o Hibernate 
@@ -68,7 +68,7 @@ public class ArtistaService {
 
 
     @WithTransaction
-    public Uni<Artista> atualizar(Long id, Artista artista) {
+    public Uni<Artista> update(Long id, Artista artista) {
         return Artista.getSession().flatMap(session -> 
             Artista.<Artista>findById(id)
                 .onItem().ifNotNull().transformToUni(entity -> {
@@ -92,7 +92,7 @@ public class ArtistaService {
     }
 
 @WithTransaction
-public Uni<Boolean> deletar(Long id) {
+public Uni<Boolean> delete(Long id) {
     return Artista.getSession().flatMap(session -> 
         // 1. Buscamos os IDs dos álbuns que pertencem APENAS a este artista
         session.createNativeQuery(
@@ -129,35 +129,7 @@ public Uni<Boolean> deletar(Long id) {
         }
     });
 }
-
-    /*
-    @WithTransaction
-    public Uni<Boolean> deletar(Long id) {
-        return Artista.getSession().flatMap(session -> 
-            session.createNativeQuery(
-                "SELECT album_id FROM artista_album WHERE artista_id = :id " +
-                "AND album_id NOT IN (SELECT album_id FROM artista_album WHERE artista_id <> :id)", Long.class)
-            .setParameter("id", id)
-            .getResultList()
-            .flatMap(idsOrfaos -> 
-                Artista.deleteById(id)
-                    .flatMap(deletado -> {
-                        if (deletado && !idsOrfaos.isEmpty()) {
-                            return session.createNativeQuery("DELETE FROM albuns WHERE id IN (:ids)")
-                                    .setParameter("ids", idsOrfaos)
-                                    .executeUpdate()
-                                    .replaceWith(true);
-                        }
-                        return Uni.createFrom().item(deletado);
-                    })
-            )
-        ).invoke(deletado -> {
-            if (deletado) {
-                webSocket.broadcast("ARTISTA_REMOVIDO: ID " + id);
-            }
-        });
-    }
-    */    
+    
 }
 
 

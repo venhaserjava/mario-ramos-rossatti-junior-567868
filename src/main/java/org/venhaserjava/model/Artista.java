@@ -14,7 +14,7 @@ import java.util.List;
  * e performance do edital SEPLAG-MT.
  * </p>
  * * @author Mario Ramos Rossatti Junior
- * @see Album
+ * * @see Album
  */
 @Entity
 @Table(name = "artistas")

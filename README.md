@@ -59,7 +59,8 @@ A solução adota arquitetura moderna baseada em **programação não-bloqueante
 ### Build da Aplicação
 
 ```bash
-./mvnw package -DskipTests
+## Permissão de execução (apenas Linux/Mac)
+chmod +x mvnw
 ```
 
 ### Subida do Ambiente
@@ -110,10 +111,10 @@ A solução foi projetada considerando:
 
 ---
 
-## 📬 Contato
+## 📬 Contato e Portfólio
 
 **Mario Ramos Rossatti Junior**
-Engenheiro de Computação / Desenvolvedor Sênior
+Software Engineer Senior | Java & Quarkus Specialist
 https://github.com/venhaserjava
 https://www.linkedin.com/in/mario-ramos-rossatti-junior-471aa0246/
 

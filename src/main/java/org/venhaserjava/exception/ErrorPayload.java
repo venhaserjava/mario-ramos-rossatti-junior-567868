@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * Representa a estrutura padronizada de resposta para erros da API.
- * [SÊNIOR] Centraliza a comunicação de falhas, garantindo que o cliente 
+ * Centraliza a comunicação de falhas, garantindo que o cliente 
  * receba sempre o mesmo formato de payload, facilitando o tratamento no frontend.
  *
  */

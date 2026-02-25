@@ -36,7 +36,7 @@ public class AlbumResource {
     @Operation(summary = "Busca álbuns por título", description = "Retorna uma lista de álbuns e seus respectivos artistas (DTO)")
     @APIResponse(responseCode = "200", description = "Busca realizada com sucesso")
     @GET
-    public Uni<List<AlbumResponseDTO>> buscar(
+    public Uni<List<AlbumResponseDTO>> find(
             @Parameter(description = "Titulo ou nome do Album", example = "///")
             @QueryParam("titulo") @DefaultValue("") String titulo,
             @Parameter(description = "Número da página (0-index)", example = "0")
@@ -44,7 +44,7 @@ public class AlbumResource {
             @Parameter(description = "Número de registros de retorno (0-size)", example = "10")
             @QueryParam("size") @DefaultValue("10") int size
         ) {
-        return albumService.buscarPorTitulo(titulo, page, size);
+        return albumService.findByTitle(titulo, page, size);
     }
 
     @Operation(summary = "Cria um álbum para um artista", description = "Requer ADMIN. Vincula o novo álbum ao ID do artista fornecido.")
@@ -52,12 +52,12 @@ public class AlbumResource {
     @POST
     @Path("/artista/{artistaId}")
     @RolesAllowed("ADMIN")
-    public Uni<Response> criar(
+    public Uni<Response> create(
         @Parameter(description = "Id do Artista que o album será associado.", example = "1")
         @PathParam("artistaId") Long artistaId,         
         @Valid Album album
     ) {
-        return albumService.criarComArtista(artistaId, album)
+        return albumService.createWithArtist(artistaId, album)
                 .map(novoAlbum -> Response.status(Response.Status.CREATED).entity(novoAlbum).build());
     }
 
@@ -67,28 +67,27 @@ public class AlbumResource {
     @PUT
     @Path("/{id}")
     @RolesAllowed("ADMIN")
-    public Uni<Response> atualizar(
+    public Uni<Response> update(
         @Parameter(description = "Id do Album que será atualizado.", example = "1")
         @PathParam("id") Long id,
         @Valid Album album
     ) {
-        return albumService.atualizar(id, album)
+        return albumService.update(id, album)
                 .map(atualizado -> Response.ok(atualizado).build())
                 .onItem().ifNull().continueWith(Response.status(Response.Status.NOT_FOUND).build());
     }
-
-
+    
     @Operation(summary = "Remove um Album", description = "Requer privilégios de ADMIN. Remove o album.")
     @APIResponse(responseCode = "204", description = "Album removido com sucesso")
     @DELETE
     @Path("/{id}")
     @RolesAllowed("ADMIN")
-    public Uni<Response> deletar(
+    public Uni<Response> delete(
         @Parameter(description = "Id do Album que será excluido.", example = "1")
         @PathParam("id") Long id
     )  {
         // id é do álbum a ser deletado
-        return albumService.deletarAlbum(id)
+        return albumService.delete(id)
                 .replaceWith(Response.noContent().build());
     }
 }
